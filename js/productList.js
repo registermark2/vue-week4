@@ -17,6 +17,7 @@ const app = createApp({
       products:[],
       isNew:false,
       addImg:true,
+      pagination:{}
     }
   },
   methods: {
@@ -32,12 +33,13 @@ const app = createApp({
         })
     },
 
-    getProductList() {
-      axios.get(`${this.url}/api/${this.path}/admin/products`)
+    getProductList(page=1) { //傳入參數預設值
+      // console.log(page);
+      axios.get(`${this.url}/api/${this.path}/admin/products/?page=${page}`)
         .then((res) => {
-          // console.log(res.data);
-          let { products } = res.data
+          let { products ,pagination} = res.data
           this.products = products
+          this.pagination = pagination
         })
         .catch((error) => {
           alert(error);
@@ -62,19 +64,6 @@ const app = createApp({
         delProductModel.show();
       }
     },
-    // updateProduct(){
-    //   let method='post';
-    //   let url = `${this.url}/api/${this.path}/admin/product`;
-    //   if(this.isNew==false){
-    //     url=`${this.url}/api/${this.path}/admin/product/${this.tempProduct.id}`;
-    //     method='put';
-    //   }
-    //   axios[method](url, {data:this.tempProduct})
-    //     .then((res)=>{
-    //       this.openModel('close');
-    //       this.getProductList();
-    //     })
-    // },
     deleteProduct(){
       const url = `${this.url}/api/${this.path}/admin/product/${this.tempProduct.id}`
       axios.delete(url, {data:this.tempProduct})
@@ -95,10 +84,6 @@ const app = createApp({
     this.checkLogin();
   },
   mounted() {
-    // const model = document.querySelector('#productModal');
-    // productModel = new bootstrap.Modal(model);
-    // const delmodel = document.querySelector('#delProductModal');
-    // delProductModel = new bootstrap.Modal(delmodel);
     this.getProductList();
   }
 });
@@ -129,12 +114,16 @@ app.component('productModal',{
       axios[method](url, {data:this.product})
         .then((res)=>{
           productModal.hide();
-          this.$emit('update');
+          this.$emit('update');//重新抓產品列表
         })
     },
   },
 })
-
+// 新增分頁元件
+app.component('pagination',{
+  template:'#pagination',
+  props:['pages'],
+});
 
 
 app.mount('#app');
